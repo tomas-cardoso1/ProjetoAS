@@ -1,6 +1,6 @@
 ﻿# Projeto de AS — God's Eye
 
-**Versão:** Inicial
+**Versão:** Ultima atualização : 05/11/2026
 
 ## Elementos do grupo
 
