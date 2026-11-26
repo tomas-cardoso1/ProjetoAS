@@ -1,0 +1,51 @@
+openapi: 3.0.3
+info:
+  title: God's Eye — API de serviços (1.º incremento)
+  version: 0.1.0
+  description: "Contrato proposto no E5 Desenho (secção 3). As leituras dos sensores não passam por esta API: chegam por MQTT (ADR-005). Os pedidos de utilizadores exigem autenticação (RNF-07)."
+paths:
+  /api/machines:
+    post:
+      summary: Registar máquina e criar o gémeo digital (UC-01.S1)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MachineInput' }
+      responses:
+        '201': { description: Máquina registada e gémeo digital criado }
+        '502': { description: "Falha de ligação ao sensor; nada é guardado (CT-01.2)" }
+    get:
+      summary: Listar máquinas com estado (UC-02.S1)
+      parameters:
+        - { name: estado, in: query, schema: { type: string, enum: [online, alerta, offline] } }
+      responses:
+        '200': { description: Lista de máquinas com estado e hora da última atualização }
+  /api/machines/{id}:
+    get:
+      summary: Estado de uma máquina (UC-02.S1)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Estado, temperatura, dados operacionais e hora da última leitura }
+        '404': { description: Máquina não encontrada }
+  /api/machines/{id}/stock:
+    get:
+      summary: Stock e validades por lote (UC-03.S1 e UC-03.S2)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: filtro, in: query, schema: { type: string, enum: [stock-baixo, perto-validade, expirado] } }
+        - { name: q, in: query, description: Pesquisa pelo nome do produto, schema: { type: string } }
+      responses:
+        '200': { description: Produtos com unidades, capacidade, mínimo e lotes; em Offline, o último stock conhecido com a hora }
+        '404': { description: Máquina não encontrada }
+components:
+  schemas:
+    MachineInput:
+      type: object
+      required: [sensorId, localizacao, modelo, clienteId]
+      properties:
+        sensorId: { type: string }
+        localizacao: { type: string }
+        modelo: { type: string }
+        clienteId: { type: string }
