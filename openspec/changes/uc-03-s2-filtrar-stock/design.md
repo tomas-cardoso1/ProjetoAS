@@ -1,19 +1,21 @@
 ## Context
 
-Ver `proposal.md` para a motivação. Esta change estende UC-03.S1 (`uc-03-s1-consultar-stock`) e reutiliza a mesma capability `stock-validades` e a consulta de inventário por máquina. Os fluxos adicionais são filtros, pesquisa por nome e apresentação do último stock conhecido quando offline.
+Ver `proposal.md` para a motivação e `specs/stock-validades/spec.md` para o contrato observável. Esta change implementa o slice UC-03.S2, que estende a consulta de stock do slice UC-03.S1 (change uc-03-s1-consultar-stock), por isso deve ser aplicada e arquivada depois dela.
+
+- Módulos (E5, Tabela 4): Aplicação Web; API de serviços; Gestão de stock e validades; Repositório de dados.
+- Endpoint: `GET /api/machines/{id}/stock?filtro=&q=`, conforme `docs/api/openapi.yaml`. Não cria endpoints novos: acrescenta parâmetros ao existente.
+- ADR aplicáveis: ADR-001 (stack), ADR-002 (testes) e ADR-003 (contrato da API).
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Acrescentar filtros sem alterar a informação base por produto e lote definida no S1.
-- Tornar a pesquisa por nome de produto compatível com os filtros.
-- Preservar contexto e timestamp do último stock recebido quando a máquina está offline.
-- Comunicar a remoção obrigatória de produtos expirados conforme BR-05.
+- Destacar os lotes expirados com aviso de remoção obrigatória (BR-05, CT-03.2).
+- Permitir filtrar por estado (stock baixo, perto da validade ou expirado) e pesquisar um produto pelo nome.
+- Quando a máquina está offline, mostrar o último stock conhecido com a hora da última atualização, sem o apresentar como atual (BR-03, RNF-06).
 
 **Non-Goals:**
-- Fazer a remoção física automática dos produtos da máquina ou registar a execução dessa operação.
-- Alterar os parâmetros de stock mínimo e capacidade definidos para a consulta base.
-- Definir uma nova origem de dados IoT ou sincronizar o inventário durante a consulta offline.
+- Alterar as regras de estado de UC-03.S1.
+- Alertas de validade (módulo de Alertas).
 
 ## Decisions
 
@@ -27,6 +29,5 @@ Ver `proposal.md` para a motivação. Esta change estende UC-03.S1 (`uc-03-s1-co
 
 ## Risks / Trade-offs
 
-- [Dados offline podem ficar progressivamente desatualizados] → Mostrar timestamp da última atualização junto à lista e distingui-la visualmente de dados atuais.
-- [Filtros por validade dependem de datas e parâmetros corretos] → Aplicar o parâmetro configurado com defeito de 7 dias e testar limites de data, validade expirada e valor exato do parâmetro.
-- [Avisos de remoção podem não ser executados] → Tornar a remoção obrigatória explícita no resultado expirado e conservar o aviso enquanto o lote continuar listado.
+- [A pesquisa por nome pode ser lenta com muitos produtos] → Pesquisar apenas dentro do stock da máquina consultada.
+- [Os filtros e a pesquisa ainda não têm scenarios próprios na spec] → Cobrir as regras com testes unitários e propor novos casos de teste na SRS (por exemplo, para o filtro, a pesquisa e a máquina offline).

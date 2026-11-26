@@ -1,12 +1,17 @@
 ## Context
 
-Ver `proposal.md` para a motivação e `specs/gestao-maquinas/spec.md` para o contrato observável. O repositório não contém ainda código da aplicação nem especificações de capabilities; o design limita-se por isso ao fluxo e aos limites de integração indicados no contexto do projeto.
+Ver `proposal.md` para a motivação e `specs/gestao-maquinas/spec.md` para o contrato observável. Esta change implementa o slice UC-01.S1 sobre a arquitetura definida em `docs/design/E5-Desenho.md`.
+
+- Módulos (E5, Tabela 4): Aplicação Web; API de serviços; Gestão de máquinas e estado; Integração com sensores IoT; Broker de mensagens (MQTT); Repositório de dados.
+- Endpoint: `POST /api/machines`, conforme `docs/api/openapi.yaml` (201 em caso de sucesso; 502 com "Falha de ligação ao sensor").
+- ADR aplicáveis: ADR-001 (stack), ADR-002 (testes), ADR-003 (contrato da API) e ADR-005 (broker MQTT).
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Definir uma sequência que só torna a máquina monitorizável depois da validação da ligação e da associação dos sensores.
-- Manter a criação do gémeo digital dependente do registo bem-sucedido e da associação IoT.
+- Só tornar a máquina monitorizável depois de verificar a ligação e associar o sensor (BR-01, CT-01.2).
+- Expor o registo através de `POST /api/machines`, sem endpoints fora do contrato.
+- Criar o gémeo digital apenas após o registo bem-sucedido, com os primeiros dados da máquina no máximo 1 minuto depois (CT-01.1).
 
 **Non-Goals:**
 - Definir detalhes de instalação/configuração do broker, credenciais dos sensores ou detalhes de interface não determinados pelo slice.
@@ -21,5 +26,6 @@ Ver `proposal.md` para a motivação e `specs/gestao-maquinas/spec.md` para o co
 
 ## Risks / Trade-offs
 
-- [A ligação pode falhar transitoriamente] → Interromper o registo conforme CT-01.2 e permitir uma nova tentativa administrativa sem criar uma máquina monitorizada parcial.
-- [A associação pode confirmar antes de a máquina responder com dados] → Só indicar que o gémeo recebe dados em tempo real quando a integração confirmar a receção, conforme CT-01.1.
+- [A ligação pode falhar transitoriamente] → Interromper o registo conforme CT-01.2 e permitir nova tentativa, sem criar uma máquina monitorizada parcial.
+- [O protocolo e o formato das mensagens ainda não estão confirmados] → Isolar tudo no adaptador de Integração com sensores IoT e usar o simulador, para poder mudar sem alterar o domínio.
+- [A associação pode confirmar antes de chegarem dados] → Só considerar que o gémeo recebe dados quando chega a primeira leitura, no máximo 1 minuto depois do registo (CT-01.1).
