@@ -39,6 +39,18 @@ paths:
       responses:
         '200': { description: Produtos com unidades, capacidade, mínimo e lotes; em Offline, o último stock conhecido com a hora }
         '404': { description: Máquina não encontrada }
+  /api/health:
+    get:
+      summary: Verificação da API e da base de dados (esqueleto)
+      responses:
+        '200': { description: API e base de dados disponíveis }
+        '503': { description: Base de dados indisponível }
+  /api/health:
+    get:
+      summary: Verificação da API e da base de dados (esqueleto)
+      responses:
+        '200': { description: API e base de dados disponíveis }
+        '503': { description: Base de dados indisponível }
 components:
   schemas:
     MachineInput:
