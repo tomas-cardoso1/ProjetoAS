@@ -16,6 +16,8 @@ Ver `proposal.md` para a motivação e `specs/stock-validades/spec.md` para o co
 
 ## Decisions
 
+- Consultar produtos, stock e lotes no Repositório de dados do sistema (ADR-006). A integração com sensores que atualiza esses dados passa pelo broker MQTT e pelo módulo de Integração com sensores IoT (ADR-005); este slice apenas expõe a consulta por REST.
+
 - Carregar a consulta no âmbito de uma única máquina selecionada, mantendo a origem da seleção (lista ou mapa) como detalhe de navegação e usando os mesmos dados de stock para ambas. A alternativa de duas consultas distintas poderia apresentar resultados divergentes.
 - Apresentar para cada produto unidades atuais, capacidade máxima e lotes; para cada lote, validade e dias restantes. Manter o stock mínimo específico da máquina associado ao produto, pois o mesmo produto pode ter limites operacionais diferentes em máquinas diferentes.
 - Derivar o estado do produto por quantidade: zero significa Esgotado; acima de zero e abaixo do mínimo significa Stock baixo; quantidade igual ou acima do mínimo não recebe esses destaques. A regra para zero tem prioridade para tornar explícito o caso de esgotamento.

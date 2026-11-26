@@ -1,32 +1,24 @@
 schema: spec-driven
 
-# Project context (optional)
-# Add only constraints that should guide OpenSpec artifacts and workflows.
-# Include constraints an agent cannot infer by reading the code.
-# Keep general project documentation and discoverable codebase facts out.
-# Example:
-#   context: |
-#     Designs and tasks must cover Windows, macOS, and Linux
-#     Write all artifacts in Spanish
-
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always state what is out of scope
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
-
-# Per-operation guidance (optional)
-# Add advisory guidance for how apply and archive work should be conducted.
-# This is separate from artifact rules above.
-# Example:
-#   operations:
-#     apply:
-#       guidance:
-#         - Keep test summaries concise
-#     archive:
-#       guidance:
-#         - Summarize the archive outcome before finishing
+context: |
+  Escrever todos os artefactos em português de Portugal.
+  Projeto: God's Eye (DPVending), monitorização de máquinas de vending a partir de sensores IoT.
+  Requisitos: SRS em assets/E4b-SRS (BR, RNF e casos de teste CT-nn.k); as specs têm origem na SRS.
+  Atores: Administrador do sistema, Gestor de operações, Técnico de reposição e manutenção.
+  Arquitetura: docs/design/E5-Desenho.md. Camadas: Interface, Lógica do domínio, Infraestrutura.
+  Módulos: Aplicação Web, API de serviços, Gestão de máquinas e estado, Gestão de stock e validades,
+  Integração com sensores IoT, Broker MQTT, Repositório de dados dos clientes e Repositório de dados do sistema;
+  futuros: Alertas, Integração com parceiros e Repositório de dados dos parceiros.
+  Decisões: docs/adr/ (ADR-001 stack; ADR-004 estado derivado; ADR-005 broker MQTT; ADR-006 separação lógica dos repositórios).
+  Contrato da API: docs/api/openapi.yaml. Não criar endpoints fora do contrato.
+  Integração IoT através de MQTT (ADR-005); o simulador do 1.º incremento publica no broker.
+  Leituras IoT não são recebidas pela API REST. Os repositórios são separados logicamente (ADR-006);
+  tecnologia e localização física ainda por confirmar.
+rules:
+  design:
+    - Indicar os módulos (E5 2.3) e os endpoints afetados.
+    - Referir os ADR aplicáveis; um desvio à arquitetura exige um ADR novo.
+  tasks:
+    - Cada scenario tem uma tarefa de teste.
+    - O nome de cada teste começa pelo ID do caso de teste (CT-nn.k).
+    - Os testes do slice passam antes do arquivo.

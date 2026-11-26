@@ -10,7 +10,7 @@ Ver `proposal.md` para a motivação e `specs/estado-maquinas/spec.md` para o co
 - Propagar leituras para o ecrã dentro do limite máximo de 30 segundos.
 
 **Non-Goals:**
-- Definir protocolo IoT, algoritmo de deteção de alertas, fornecedor de mapas ou desenho visual detalhado.
+- Redefinir o protocolo IoT estabelecido pelo ADR-005, o algoritmo de deteção de alertas, o fornecedor de mapas ou o desenho visual detalhado.
 - Alterar a origem ou frequência de leitura configurada nos sensores.
 
 ## Decisions
@@ -19,6 +19,7 @@ Ver `proposal.md` para a motivação e `specs/estado-maquinas/spec.md` para o co
 - Transportar a hora da última leitura junto com cada conjunto de dados e apresentá-la como referência temporal. Leituras sem atualização recente permanecem identificadas como últimas recebidas, nunca como atuais. A alternativa de mostrar apenas valores sem timestamp viola RNF-06.
 - Atualizar o ecrã à medida que as leituras chegam, com propagação máxima de 30 segundos entre leitura do sensor e apresentação. A alternativa de atualizar apenas ao recarregar a página não garante RNF-01.
 - Para estado Offline, manter visíveis os últimos dados recebidos juntamente com a hora da última atualização, em vez de substituir os valores por zeros ou ocultá-los; isso preserva contexto sem sugerir atualidade.
+- Obter a última leitura e a associação do sensor no Repositório de dados do sistema, conforme ADR-006. A leitura é recebida pelo módulo IoT via broker MQTT (ADR-005); a consulta de estado continua pela API REST.
 
 ## Risks / Trade-offs
 

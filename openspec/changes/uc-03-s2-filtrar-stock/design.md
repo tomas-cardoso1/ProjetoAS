@@ -17,6 +17,8 @@ Ver `proposal.md` para a motivação. Esta change estende UC-03.S1 (`uc-03-s1-co
 
 ## Decisions
 
+- Reutilizar os dados consultados no Repositório de dados do sistema, conforme ADR-006. Este slice aplica filtros e pesquisa à consulta REST e não altera a ingestão MQTT definida no ADR-005.
+
 - Reutilizar a consulta e a estrutura de produto/lote da S1 e aplicar filtros à lista resultante. Os filtros disponíveis são Stock baixo, Perto da validade e Expirado, para que o gestor possa restringir a listagem sem criar fluxos separados.
 - Definir Perto da validade como lote cuja data de validade está dentro do número de dias do parâmetro de alerta, com valor por defeito de 7 dias; definir Expirado quando a data já passou. O limite inclusivo no dia de validade segue o parâmetro de dias restantes; expirados têm prioridade e recebem o aviso de remoção obrigatória. Isto aplica BR-05 de forma previsível.
 - Permitir pesquisa textual pelo nome do produto e combinar a pesquisa com os filtros selecionados, usando a pesquisa para restringir o resultado filtrado. A alternativa de ignorar o filtro ao pesquisar impediria localizar um produto dentro do subconjunto operacional relevante.
