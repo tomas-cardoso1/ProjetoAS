@@ -4,7 +4,7 @@
 - [ ] 1.2 Implementar na Integração com sensores IoT a verificação da ligação e a associação do sensor pelo broker MQTT (simulador no 1.º incremento); o registo só se conclui depois da associação (BR-01).
 - [ ] 1.3 Guardar a máquina e criar o gémeo digital no Repositório de dados apenas após a associação confirmada e devolver 201 com `{id, estado}`.
 - [ ] 1.4 Quando não há ligação ou o sensor é inválido, devolver 502 com "Falha de ligação ao sensor" e não guardar nada.
-
+- [ ] 1.5 Guardar no Repositório de dados cada leitura recebida (temperatura, estado operacional, produtos e lotes) com a hora de origem, para serem usadas pelos slices seguintes (ADR-004).
 ## 2. Interface
 
 - [ ] 2.1 Criar na Aplicação Web o formulário de registo (sensor, localização, modelo e cliente) com seletores `data-testid` estáveis, que mostra o resultado ou a mensagem de erro.

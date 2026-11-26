@@ -1,26 +1,31 @@
 ## Context
 
-Ver `proposal.md` para a motivação e `specs/estado-maquinas/spec.md` para o contrato fornecido. O repositório não contém ainda implementação nem outras specs de capabilities; o contexto define os limites temporais e a regra de classificação a cumprir.
+Ver `proposal.md` para a motivação e `specs/estado-maquinas/spec.md` para o contrato observável. Esta change implementa o slice UC-02.S1 sobre a arquitetura definida em `docs/design/E5-Desenho.md`.
+
+- Módulos (E5, Tabela 4): Aplicação Web; API de serviços; Gestão de máquinas e estado; Repositório de dados. As leituras chegam pela Integração com sensores IoT, já implementada na change uc-01-s1-registar-maquina.
+- Endpoints: `GET /api/machines` (filtro opcional `?estado=online|alerta|offline`) e `GET /api/machines/{id}`, conforme `docs/api/openapi.yaml`.
+- ADR aplicáveis: ADR-001 (stack), ADR-002 (testes), ADR-003 (contrato da API) e ADR-004 (estado calculado na consulta).
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Derivar o estado visível dos dados recebidos e do estado de alertas, com prioridade para Offline quando excedido o limite de ausência de transmissão.
-- Manter a indicação temporal associada aos dados apresentados para que leituras antigas não pareçam atuais.
-- Propagar leituras para o ecrã dentro do limite máximo de 30 segundos.
+- Apresentar ao gestor o estado atual da máquina (Online, Com alerta ou Offline) e os dados de funcionamento recebidos dos sensores (BR-02, BR-03).
+- Nunca mostrar dados antigos como se fossem atuais quando a máquina está offline (RNF-06).
+- Respeitar os tempos definidos: dados no ecrã até 30 segundos depois da leitura (RNF-01) e páginas a carregar em até 3 segundos (RNF-02).
 
 **Non-Goals:**
-- Definir protocolo IoT, algoritmo de deteção de alertas, fornecedor de mapas ou desenho visual detalhado.
-- Alterar a origem ou frequência de leitura configurada nos sensores.
+- Criar ou tratar alertas (módulo de Alertas, Épico #3).
+- Receber leituras dos sensores, que já está implementado em UC-01.S1.
 
 ## Decisions
 
-- Calcular o estado a partir de dois sinais: idade da última leitura e existência de alertas ativos. Se não houver transmissão há mais de 15 minutos, mostrar Offline; caso contrário, mostrar Com alerta quando existir pelo menos um alerta ativo; nos restantes casos, Online. Esta ordem respeita a definição de Offline como ausência de ligação. A alternativa de deixar o alerta sobrepor-se a Offline esconderia a falta de comunicação.
-- Transportar a hora da última leitura junto com cada conjunto de dados e apresentá-la como referência temporal. Leituras sem atualização recente permanecem identificadas como últimas recebidas, nunca como atuais. A alternativa de mostrar apenas valores sem timestamp viola RNF-06.
-- Atualizar o ecrã à medida que as leituras chegam, com propagação máxima de 30 segundos entre leitura do sensor e apresentação. A alternativa de atualizar apenas ao recarregar a página não garante RNF-01.
-- Para estado Offline, manter visíveis os últimos dados recebidos juntamente com a hora da última atualização, em vez de substituir os valores por zeros ou ocultá-los; isso preserva contexto sem sugerir atualidade.
+- O estado não é guardado: calcula-se em cada consulta a partir da hora da última leitura (ADR-004). A alternativa de o guardar e atualizar por tarefa periódica foi afastada, porque podia mostrar um estado desatualizado.
+- Uma máquina fica Offline quando passaram mais de 15 minutos desde a última leitura, com prioridade sobre Com alerta (BR-03).
+- Enquanto não existir o módulo de Alertas, não há alertas ativos para ler e uma máquina com dados recentes aparece como Online (E5, secção 2.3).
+- Em Offline, a API devolve os últimos dados com a hora da última atualização, assinalados como não atuais (RNF-06, CT-02.2).
+- A lista de máquinas é paginada e usa o índice da última leitura de cada máquina (E5, secção 2.2).
 
 ## Risks / Trade-offs
 
-- [Atrasos ou interrupções de rede podem atrasar a leitura] → Exibir sempre timestamp de origem e estado Offline após mais de 15 minutos sem dados; sinalizar dados retidos como última leitura.
-- [Relógios ou timestamps inconsistentes podem alterar a classificação temporal] → Usar uma referência temporal consistente para calcular a idade da leitura e manter a marca de tempo original visível.
+- [O cálculo do estado em cada consulta pode ficar pesado com muitas máquinas] → Usar um índice na última leitura da máquina e paginar a lista (RNF-02, RNF-10).
+- [Os relógios dos sensores podem estar desfasados] → Calcular o estado com a hora de origem guardada em cada leitura e testar o limite dos 15 minutos.
