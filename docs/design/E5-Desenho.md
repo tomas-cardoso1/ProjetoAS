@@ -1,8 +1,8 @@
 | **Projeto:**     | DPVending - God’s Eye                                                                                                                                                                                                                                                                                                                                                                                                                      |
 |------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Grupo:**       | Luís Oliveira \[125016\], Tomás Cardoso \[125050\], Margarida Teixeira \[126011\] , Jéssica Zheng \[126541\]                                                                                                                                                                                                                                                                                                                               |
-| **Data/versão:** | 2026/11/25, v1.0                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Sumário:**     | O God’s Eye é uma aplicação web para a DPVending monitorizar máquinas de vending (estado, stock e validades por lote) a partir de sensores IoT. Este documento define a arquitetura em camadas, a integração MQTT, a separação lógica dos repositórios, as decisões de arquitetura, a API REST e o mapeamento dos slices do 1.º incremento. |
+| **Data/versão:** | 2026/11/27, v1.0                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Sumário:**     | O God’s Eye é uma aplicação web para a DPVending monitorizar à distância as máquinas de vending (estado, stock e validades por lote) a partir de sensores IoT. Este documento define a arquitetura em camadas, as decisões estruturantes (ADR), a API REST que separa a interface da lógica do domínio e a integração com os sensores, e liga os slices do 1.º incremento (UC-01.S1, UC-02.S1, UC-03.S1 e UC-03.S2) a endpoints e módulos.  |
 
 **Controlo de versões**
 
@@ -10,35 +10,29 @@
 
 | **Data**   | **Autor(es)**                                        | **Descrição da alteração**                                                                                  |
 |------------|------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
-| 2026/11/24 | Grupo (rascunho preenchido com apoio de AI; a rever) | v1.0 — Preenchimento do desenho: arquitetura, ADR, integração IoT, API de serviços e mapeamento dos slices. |
-|            |                                                      |                                                                                                             |
-|            |                                                      |                                                                                                             |
+| 2026/11/24 | Luís Oliveira, Tomás Cardoso, Margarida Teixeira, Jéssica Zheng | Definição da arquitetura e API de integração |
+| 2026/11/26 |   Luís Oliveira, Tomás Cardoso, Margarida Teixeira, Jéssica Zheng |     Atualização da arquitetura e diagramas |
 
 # Introdução
 
 ## Sumário executivo
 
 Este relatório apresenta as principais decisões relativamente ao plano técnico para a construção do sistema GOD’S EYE.
+O sistema terá uma aplicação web para gestão e monitorização das máquinas de vending da DPVending, incluindo a consulta do estado das máquinas, do stock e das validades. A integração com os sensores IoT está prevista através de um broker MQTT, e os dados serão organizados em repositórios separados por responsabilidade.
+Os módulos de frontend integrarão com a lógica aplicacional através de uma interface de serviços (API REST), apresentada na secção 3 (ver ADR-001 e ADR-003).
 
-O sistema terá uma aplicação web para gestão e monitorização das máquinas de vending da DPVending, incluindo a consulta do estado das máquinas, do stock e das validades.
-
-O 1.º incremento (Épico \#1, representação digital de uma máquina) inclui quatro slices: registar a máquina e ativar o gémeo digital (UC-01.S1), consultar o estado (UC-02.S1), consultar o stock e as validades por lote (UC-03.S1) e filtrar e pesquisar o stock (UC-03.S2). A arquitetura é por camadas e integra os sensores através de MQTT (ADR-005), ficando a compatibilidade dos equipamentos e os detalhes das mensagens por confirmar. Os dados são organizados em repositórios lógicos separados por responsabilidade (ADR-006).
-
-Os módulos de *frontend* integrarão com a lógica aplicacional através de uma interface de serviços (API REST), apresentada na secção 3 (ver ADR-001 e ADR-003).
 
 ## Como é que utilizamos os recursos de AI
 
-O grupo conduz a implementação com o OpenSpec (esquema spec-driven). As skills do OpenSpec (explore, propose, update-change, apply-change, verify-change, sync-specs e archive-change) estão em .agents/skills, e cada slice do 1.º incremento tem uma change em openspec/changes: uc-01-s1-registar-maquina, uc-02-s1-consultar-estado, uc-03-s1-consultar-stock e uc-03-s2-filtrar-stock. \[CONFIRMAR: agente(s), modelo(s) e versão do OpenSpec usados pelo grupo.\] Este documento foi preenchido com apoio do Claude (Anthropic), a partir do repositório, da Visão, da SRS e das changes.
+O grupo utilizou o Claude como apoio à análise do repositório e à preparação deste relatório. A ferramenta ajudou a organizar a informação da Visão (E2), da SRS (E4) e dos artefactos OpenSpec relativos aos quatro slices do 1º incremento. As propostas foram revistas pelo grupo e comparadas com as regras de negócio, os requisitos não funcionais e os casos de teste da SRS. As decisões finais de arquitetura e o conteúdo deste relatório são da responsabilidade do grupo.
+O grupo utilizou o OpenSpec para organizar o trabalho segundo a abordagem spec-driven. As skills do OpenSpec (explore, update-change, apply-change, verify-change, sync-specs e archive-change) estão em .agents/skills, e cada slice do 1º incremento tem uma change com ficheiros de proposta, desenho, especificação e tarefas. 
+Na preparação das changes, o grupo reviu os ficheiros design.md e as tarefas tendo em conta as BR, os RNF e os CT da SRS. As tarefas de teste especificam os valores e os resultados esperados definidos nos CT. Os testes a implementar deverão usar esses valores e verificar esses resultados, conforme previsto no ADR-002.
 
-**Gerado pelo agente:** em cada change, proposal.md, design.md, specs/\<capability\>/spec.md e tasks.md, a partir dos slices da SRS. **Escrito pelo grupo:** a Visão (E2), os protótipos (E3), a SRS e os diagramas (E4), as decisões de arquitetura (ADR) e a revisão final deste E5. O código e os testes ainda não foram gerados: todas as tarefas de tasks.md estão por fazer.
-
-**Revisão:** antes de aplicar uma change, o grupo confronta o design.md e as tarefas com as regras de negócio (BR), os RNF e os casos de teste (CT) da SRS. As tarefas já indicam os valores esperados dos CT: por exemplo, a 1.2 de UC-03.S1 verifica o CT-03.1 com 10 unidades de «Leite com Chocolate», a 2.1 de UC-03.S2 verifica o CT-03.2 com um lote expirado há um dia e a 1.2 de UC-01.S1 verifica a mensagem «Falha de ligação ao sensor» (CT-01.2). Os testes gerados têm de usar esses valores e o resultado esperado da SRS (ver ADR-002). A questão em aberto do S1 (limiar de «perto da validade») fica resolvida pela BR-05: 7 dias por defeito.
 
 # Arquitetura do sistema
 
 ## Objetivos gerais
 
-Os objetivos que mais condicionam a arquitetura do God’s Eye são os seguintes.
 
 - Os gestores de operações devem poder consultar, através de uma aplicação web, o estado, o stock e as validades das máquinas de vending da DPVending.
 
@@ -52,13 +46,13 @@ Os objetivos que mais condicionam a arquitetura do God’s Eye são os seguintes
 
 - Uma máquina só é monitorizada depois de registada e com sensores associados (BR-01); se não houver ligação, o registo falha e não fica nenhum estado parcial.
 
-- Os dados têm de aparecer em até 30 segundos (RNF-01) e as páginas principais carregar em até 3 segundos (RNF-02). Sem dados há mais de 15 minutos a máquina passa a Offline (BR-03) e a interface mostra os últimos dados com a hora (RNF-06).
+- Os dados têm de aparecer em até 30 segundos (RNF-01) e as páginas principais carregar em até 3 segundos (RNF-02). Sem dados há mais de 15 minutos, a máquina passa a Offline (BR-03) e a interface mostra os últimos dados com a hora (RNF-06).
 
 - O sistema deve suportar pelo menos 1000 máquinas sem que os tempos de carregamento aumentem mais de 20% (RNF-10) e funcionar nas duas versões mais recentes de Chrome, Edge, Firefox e Safari (RNF-09).
 
 - O acesso exige autenticação e respeita os perfis (RNF-07).
 
-- A integração dos sensores está prevista através de MQTT (ADR-005). O suporte MQTT pelos equipamentos, o formato e a frequência das mensagens têm de ser confirmados antes da integração com sensores reais; o simulador do 1.º incremento publica no broker.
+- Os sensores enviam as leituras para um broker de mensagens (MQTT, ADR-005), que desacopla os sensores do sistema; o formato e a frequência das mensagens ainda não estão definidos e dependem dos equipamentos.
 
 ## Requisitos com impacto na arquitetura
 
@@ -66,7 +60,6 @@ Os objetivos que mais condicionam a arquitetura do God’s Eye são os seguintes
 
 | **Requisitos** | **Descrição**                                                                                                                                                                                   |
 |----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| RT-1           | A aplicação web deve permitir testes automáticos de ponta a ponta com Playwright: elementos interativos identificáveis por seletores estáveis e dados de teste repostos antes de cada execução. |
 | RNF-01         | Os dados recebidos das máquinas devem aparecer no sistema em até 30 segundos.                                                                                                                   |
 | RNF-02         | As páginas principais, incluindo o mapa, a lista de máquinas e os alertas, devem carregar em até 3 segundos.                                                                                    |
 | RNF-04         | As funções destinadas aos técnicos devem poder ser utilizadas num telemóvel, sem necessidade de ampliar o ecrã.                                                                                 |
@@ -78,18 +71,6 @@ Os objetivos que mais condicionam a arquitetura do God’s Eye são os seguintes
 | RNF-11         | A interface deve apresentar os textos no idioma do utilizador. Isto pode exigir que os textos da interface sejam organizados de forma a suportar a tradução.                                    |
 | RNF-12         | A informação partilhada deve poder ser integrada nos sistemas dos parceiros segundo a norma EVA-DTS; a SRS define como objetivo que 95% dos pedidos estejam disponíveis em até 5 minutos.       |
 
-Como estes requisitos influenciam as escolhas:
-
-- RNF-01, RNF-02 e RNF-06: cada leitura é guardada com a hora de origem e o estado é calculado na consulta (ADR-004); a lista de máquinas é paginada e indexada pela última leitura.
-
-- RNF-10: o acesso por máquina (/api/machines/{id}) evita carregar toda a rede de cada vez.
-
-- RNF-07: autenticação e perfis na API, não na interface.
-
-- RT-1, RNF-04, RNF-09 e RNF-11: aplicação web responsiva, com seletores data-testid estáveis, textos fora do código e dados de teste repostos antes de cada execução (ADR-002).
-
-- RNF-05 e RNF-12: disponibilidade fora do horário de expediente e integração com parceiros (EVA-DTS) ficam como requisitos de implantação e de incrementos futuros.
-
 ## Vista geral da arquitetura
 
 <img src="../../assets/Diagramas/packageDiagram.png" style="width:6.2in;height:5.9in" />
@@ -97,21 +78,20 @@ Como estes requisitos influenciam as escolhas:
 *Figura 1: Vista lógica da arquitetura (diagrama de pacotes). A cinzento: módulos de incrementos futuros.*
 
 A articulação entre os módulos decorre da seguinte forma:
-
-A Aplicação Web (camada de interface) comunica apenas com a API de serviços, que encaminha os pedidos para os módulos do domínio.
+A Aplicação Web (camada de interface) comunica apenas com a API de serviços, que expõe os casos de uso aos módulos do domínio.
 
 - **Gestão de máquinas e estado:** regista máquinas, associa sensores, cria o gémeo digital e calcula o estado (Online, Com alerta, Offline) a partir da última leitura. Consulta o Repositório de dados dos clientes para validar o cliente associado e o Repositório de dados do sistema para guardar e consultar máquinas, associações a sensores e leituras.
 
 - **Gestão de stock e validades:** consulta no Repositório de dados do sistema o stock por produto e lote e aplica os estados de stock (BR-04) e de validade (BR-05), os filtros e a pesquisa por nome.
 
-- **Integração com sensores IoT:** subscreve as leituras encaminhadas pelo Broker MQTT, valida-as, associa-as à máquina e guarda-as com a hora de origem no Repositório de dados do sistema; é a fronteira entre o sistema e os sensores.
+- **Integração com sensores IoT:** recebe as leituras encaminhadas pelo Broker MQTT, valida-as, associa-as à máquina correspondente e guarda-as, com a hora de origem, no Repositório de dados do sistema; é a única fronteira entre o sistema e os sensores.
 
-- **Broker MQTT:** recebe as mensagens publicadas pelos sensores e disponibiliza-as à Integração com sensores IoT, desacoplando os sensores dos módulos do domínio.
+- **Broker MQTT:** recebe as mensagens publicadas pelos sensores e disponibiliza-as ao módulo de Integração com sensores IoT. Desacopla os sensores dos restantes módulos; o formato e a frequência das mensagens dependem dos equipamentos e ainda têm de ser confirmados.
 - **Repositório de dados dos clientes:** guarda os dados necessários para validar o cliente associado a uma máquina.
-- **Repositório de dados do sistema:** guarda máquinas, associações a sensores, leituras, produtos, stock e lotes.
-- **Repositório de dados dos parceiros:** reservado aos dados da futura integração com parceiros.
+- **Repositório de dados do sistema:** guarda os dados das máquinas, as associações a sensores, as leituras, os produtos, o stock  e os lotes.
+- **Repositório de dados dos parceiros:** destina-se aos dados necessários à integração com parceiros, prevista para um incremento futuro.
 
-Entram no 1.º incremento a Aplicação Web, a API de serviços, a Gestão de máquinas e estado, a Gestão de stock e validades, a Integração com sensores IoT, o Broker MQTT e os repositórios de dados dos clientes e do sistema. Ficam para incrementos futuros os módulos a cinzento: Alertas (Épico \#3), Integração com parceiros e o Repositório de dados dos parceiros. Enquanto não existir o módulo de Alertas, a classificação «Com alerta» não tem alertas ativos para ler e uma máquina com dados recentes aparece como Online.
+Entram no 1.º incremento a Aplicação Web, a API de serviços, a Gestão de máquinas e estado, a Gestão de stock e validades, a Integração com sensores IoT, o Broker MQTT, o Repositório de dados dos clientes e o Repositório de dados do sistema. Ficam para incrementos futuros os módulos a cinzento: Alertas (Épico #3) e Integração com parceiros e o respetivo Repositório de dados dos parceiros. Enquanto não existir o módulo de Alertas, a classificação «Com alerta» não tem alertas ativos para ler e uma máquina com dados recentes aparece como Online.
 
 ## Integração de sistemas e dispositivos
 
@@ -119,11 +99,12 @@ O God’s Eye deverá receber dados dos sensores IoT associados às máquinas de
 
 A integração será feita através do módulo de integração IoT representado na vista da arquitetura. Quando receber dados, o sistema deverá associá-los à máquina correspondente e guardar a hora da leitura, para que os utilizadores possam distinguir dados recentes de dados desatualizados. Se uma máquina deixar de enviar dados, o sistema deverá apresentar a última leitura recebida com a respetiva hora e indicar que a máquina está offline, conforme definido na SRS.
 
-O protocolo definido para a integração é MQTT, através do Broker MQTT (ADR-005). A compatibilidade dos sensores reais com MQTT, o formato e a frequência das mensagens e o processo de instalação e identificação dos sensores ainda têm de ser confirmados. Por isso, este desenho não assume que os sensores já fornecem todos os dados necessários.
+Os sensores publicam as leituras num broker de mensagens MQTT (ADR-005), e o módulo de Integração com sensores IoT subscreve-as. O formato das mensagens, a frequência de envio e o processo de instalação e identificação dos sensores ainda não estão definidos: dependem das capacidades dos equipamentos e têm de ser confirmados antes da implementação, incluindo se os sensores suportam MQTT. Por isso este desenho não assume que os sensores já fornecem todos os dados necessários.
 
 A partilha de necessidades de reposição com fornecedores e transportadoras está prevista para um incremento posterior. O formato dos dados e a forma de comunicação com cada parceiro terão de ser definidos com base nos sistemas e acordos disponíveis.
 
-Os diagramas seguintes mostram as interações do 1.º incremento com os sensores através do broker. No 1.º incremento, um simulador publica as leituras no mesmo broker que será utilizado pela integração. O conteúdo da mensagem é provisório e será confirmado face às capacidades dos equipamentos, incluindo identificação do sensor, hora da leitura, temperatura, estado operacional, stock e lotes.
+Os diagramas seguintes mostram as duas interações do 1.º incremento com os sensores. A mensagem de leitura é provisória: contém os dados que a SRS precisa (identificação do sensor, hora da leitura, temperatura, estado operacional, stock e lotes) e será ajustada quando o protocolo ficar definido.
+
 
 <img src="../../assets/Diagramas/sequenceDiagram.png" style="width:6.45in;height:4.4in" alt="Diagrama de sequência do registo de máquina" />
 
@@ -135,9 +116,7 @@ No registo, a máquina só é guardada e o gémeo digital só é criado depois d
 
 *Figura 3: Diagrama de sequência da receção de leituras IoT e da consulta do estado e do stock (UC-02.S1, UC-03.S1 e UC-03.S2).*
 
-Cada leitura é guardada com a hora de origem. O estado (Online, Com alerta, Offline) não é guardado: calcula-se na consulta, a partir da hora da última leitura e dos alertas ativos, com prioridade para Offline (mais de 15 minutos sem dados, BR-03). Em Offline, a API devolve os últimos dados com a hora da última atualização, assinalados como não atuais (RNF-06).
-
-As leituras IoT não fazem parte da API REST de serviços: são publicadas pelo sensor ou simulador no broker MQTT e consumidas pelo módulo de Integração com sensores IoT. A validação e persistência da mensagem ocorrem nesse módulo; o formato final, a autenticação dos dispositivos e o mecanismo de presença do sensor carecem de confirmação antes da implementação com equipamentos reais.
+Cada leitura chega ao sistema através do broker e é guardada com a hora de origem. O estado (Online, Com alerta, Offline) não é guardado: calcula-se na consulta, a partir da hora da última leitura e dos alertas ativos, com prioridade para Offline (mais de 15 minutos sem dados, BR-03). Em Offline, a API devolve os últimos dados com a hora da última atualização, assinalados como não atuais (RNF-06).
 
 ## Decisões de arquitetura (ADR)
 
@@ -154,23 +133,34 @@ As leituras IoT não fazem parte da API REST de serviços: são publicadas pelo 
 
 ## Alinhamento com processo (OpenSpec)
 
-O desenho chega ao agente pelo `openspec/config.yaml`, que fornece o contexto de arquitetura e as regras para os artefactos. O excerto abaixo resume as entradas relevantes do ficheiro atual:
+O desenho chega ao agente pelo `openspec/config.yaml`, que injeta em cada artefacto (proposal, specs, design e tasks) o contexto de arquitetura e as regras de desenho. O excerto abaixo resume as entradas relevantes do ficheiro atual:
 
 context: \|
+Escrever todos os artefactos em português de Portugal.
+
+Projeto: God's Eye (DPVending), monitorização de máquinas de vending a partir de sensores IoT.
+
+Requisitos: SRS em assets/E4b-SRS (BR, RNF e casos de teste CT-nn.k); as specs têm origem na SRS.
+
+Atores: Administrador do sistema, Gestor de operações, Técnico de reposição e manutenção.
 
 Arquitetura: docs/design/E5-Desenho.md. Camadas: Interface, Lógica do domínio, Infraestrutura.
 
 Módulos: Aplicação Web, API de serviços, Gestão de máquinas e estado, Gestão de stock e validades,
 
 Integração com sensores IoT, Broker MQTT, Repositório de dados dos clientes e Repositório de dados do sistema;
+
 futuros: Alertas, Integração com parceiros e Repositório de dados dos parceiros.
 
 Decisões: docs/adr/ (ADR-001 stack; ADR-004 estado derivado; ADR-005 broker MQTT; ADR-006 separação lógica dos repositórios).
 
 Contrato da API: docs/api/openapi.yaml. Não criar endpoints fora do contrato.
 
-Integração IoT através de MQTT (ADR-005); simulador do 1.º incremento publica no broker.
-Leituras IoT não são recebidas pela API REST. Repositórios separados logicamente (ADR-006), com concretização física por confirmar.
+Integração IoT através de MQTT (ADR-005); o simulador do 1.º incremento publica no broker.
+
+Leituras IoT não são recebidas pela API REST. Repositórios separados logicamente (ADR-006);
+
+tecnologia e localização física ainda por confirmar.
 
 rules:
 
@@ -188,11 +178,11 @@ tasks:
 
 \- Os testes do slice passam antes do arquivo.
 
-**No E5 fica** o que vale para todo o produto: vista lógica, ADR, contrato da API e mapeamento slice → módulos. **No \`design.md\` de cada change fica** o fluxo e as decisões locais do slice (ordem dos passos, regras aplicadas, riscos), que referem os módulos e os endpoints da Tabela 4 sem os redefinir. As specs descrevem apenas comportamento observável, com origem na SRS (BR, RNF e CT); o que pode mudar sem alterar o comportamento visível (módulos, endpoints, tecnologia) pertence ao desenho. Uma decisão que contrarie um ADR exige um ADR novo.
+No E5 fica o que vale para todo o produto: vista lógica, ADR, contrato da API e mapeamento slice → módulos. No \`design.md\` de cada change fica o fluxo e as decisões locais do slice (ordem dos passos, regras aplicadas, riscos), que referem os módulos e os endpoints da Tabela 4 sem os redefinir. As specs descrevem apenas comportamento observável, com origem na SRS (BR, RNF e CT); o que pode mudar sem alterar o comportamento visível (módulos, endpoints, tecnologia) pertence ao desenho. Uma decisão que contrarie um ADR exige um ADR novo.
 
 # Interface de serviços
 
-A interface de serviços é uma API REST em JSON que separa a Aplicação Web da lógica do domínio (ADR-003). Serve este frontend e pode servir outros e, mais tarde, parceiros. O contrato completo está em docs/api/openapi.yaml; a Tabela 3 resume os endpoints do 1.º incremento. Todos os pedidos de utilizadores exigem autenticação e perfil adequado (RNF-07).
+A interface de serviços é uma API REST em JSON que separa a Aplicação Web da lógica do domínio (ADR-003). Serve este frontend e pode servir outros e, mais tarde, parceiros. O contrato completo está em docs/api/openapi.yaml; a Tabela 3 resume os endpoints do 1.º incremento.
 
 ## API de serviços
 
@@ -200,7 +190,7 @@ A interface de serviços é uma API REST em JSON que separa a Aplicação Web da
 
 | **Coleção (recurso)** | **Ponto de acesso (method + *path*)**                                             | **Funcionalidade/mensagem**                                                                                                                                                     |
 |-----------------------|-----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| machines              | POST /api/machines                                                                | Registar uma máquina (sensorId, localização, modelo, cliente), associar o sensor e criar o gémeo digital. 201 em caso de sucesso; 502 «Falha de ligação ao sensor» sem ligação. |
+| machines              | POST /api/machines                                                                | Registar uma máquina, associar o sensor e criar o gémeo digital. 201 em caso de sucesso; 502 «Falha de ligação ao sensor» sem ligação. |
 | machines              | GET /api/machines                                                                 | Listar as máquinas com estado e hora da última atualização (lista e mapa); filtro opcional ?estado=online\|alerta\|offline.                                                     |
 | machines              | GET /api/machines/{id}                                                            | Estado de uma máquina: classificação, temperatura, dados operacionais e hora da última leitura.                                                                                 |
 | stock                 | GET /api/machines/{id}/stock                                                      | Stock por produto (unidades, capacidade, mínimo, estado) com os lotes (validade e dias restantes).                                                                              |
@@ -218,4 +208,3 @@ A interface de serviços é uma API REST em JSON que separa a Aplicação Web da
 | UC-02.S1                                | GET /api/machines; GET /api/machines/{id} | Aplicação Web; API de serviços; Gestão de máquinas e estado; Repositório de dados do sistema                   |
 | UC-03.S1                                | GET /api/machines/{id}/stock              | Aplicação Web; API de serviços; Gestão de stock e validades; Repositório de dados do sistema                  |
 | UC-03.S2                                | GET /api/machines/{id}/stock?filtro=&q=   | Aplicação Web; API de serviços; Gestão de stock e validades; Repositório de dados do sistema                  |
-| Suporte (ingestão IoT)                   | MQTT (tópico definido no ADR-005)         | Sensor/simulador; Broker MQTT; Integração com sensores IoT; Repositório de dados do sistema                   |
