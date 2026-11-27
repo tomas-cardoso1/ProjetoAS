@@ -14,6 +14,7 @@ paths:
             schema: { $ref: '#/components/schemas/MachineInput' }
       responses:
         '201': { description: Máquina registada e gémeo digital criado }
+        '400': { description: clienteId não existe no repositório de dados dos clientes }
         '502': { description: "Falha de ligação ao sensor; nada é guardado (CT-01.2)" }
     get:
       summary: Listar máquinas com estado (UC-02.S1)
@@ -37,7 +38,11 @@ paths:
         - { name: filtro, in: query, schema: { type: string, enum: [stock-baixo, perto-validade, expirado] } }
         - { name: q, in: query, description: Pesquisa pelo nome do produto, schema: { type: string } }
       responses:
-        '200': { description: Produtos com unidades, capacidade, mínimo e lotes; em Offline, o último stock conhecido com a hora }
+        '200':
+          description: Produtos com unidades, capacidade, mínimo, estado e lotes com validade e dias restantes
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MachineStock' }
         '404': { description: Máquina não encontrada }
   /api/health:
     get:
@@ -61,3 +66,42 @@ components:
         localizacao: { type: string }
         modelo: { type: string }
         clienteId: { type: string }
+    MachineStock:
+      type: object
+      required: [maquinaId, ultimaAtualizacao, dadosAtuais, produtos]
+      properties:
+        maquinaId: { type: string, format: uuid }
+        ultimaAtualizacao: { type: string, format: date-time, nullable: true }
+        dadosAtuais: { type: boolean, description: Indica se a última leitura tem até 15 minutos. }
+        produtos:
+          type: array
+          items: { $ref: '#/components/schemas/StockProduct' }
+    StockProduct:
+      type: object
+      required: [produtoId, nome, unidades, capacidadeMaxima, stockMinimo, estado, lotes]
+      properties:
+        produtoId: { type: string }
+        nome: { type: string }
+        unidades: { type: integer, minimum: 0 }
+        capacidadeMaxima: { type: integer, minimum: 0 }
+        stockMinimo: { type: integer, minimum: 0 }
+        estado:
+          type: string
+          enum: [Disponível, Stock baixo, Esgotado]
+        lotes:
+          type: array
+          items: { $ref: '#/components/schemas/StockLot' }
+    StockLot:
+      type: object
+      required: [produtoId, validade, diasRestantes, estado, avisoRemocaoObrigatoria]
+      properties:
+        produtoId: { type: string }
+        validade: { type: string, format: date }
+        diasRestantes: { type: integer }
+        estado:
+          type: string
+          enum: [Dentro da validade, Perto da validade, Expirado]
+        avisoRemocaoObrigatoria:
+          type: string
+          nullable: true
+          description: Mensagem operacional apresentada quando o lote está expirado.

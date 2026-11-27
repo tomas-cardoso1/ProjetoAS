@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest run",
-    "dev": "tsx watch src/server.ts"
+    "build": "tsc -p tsconfig.json",
+    "dev": "npm run build && node dist/server.js",
+    "start": "npm run build && node dist/server.js",
+    "db:reset": "npm run build && node dist/dbReset.js",
+    "simulador": "npm run build && node dist/simulator.js"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +17,7 @@
   "type": "commonjs",
   "dependencies": {
     "fastify": "^5.12.8",
+    "mqtt": "^5.16.1",
     "pg": "^8.23.1"
   },
   "devDependencies": {

@@ -2,18 +2,6 @@
 
 export default defineConfig({
   testDir: './e2e',
-  use: { baseURL: 'http://localhost:5173' },
-  webServer: [
-    {
-      command: 'npm run dev',
-      cwd: '../backend',
-      url: 'http://localhost:3000/api/health',
-      reuseExistingServer: true,
-    },
-    {
-      command: 'npm run dev',
-      url: 'http://localhost:5173',
-      reuseExistingServer: true,
-    },
-  ],
+  globalSetup: './e2e/global-setup.ts',
+  use: { baseURL: 'http://127.0.0.1:5174' },
 });
