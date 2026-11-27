@@ -1,6 +1,6 @@
 # ADR-001 — Stack e ferramenta de testes do 1.º incremento
 
-**Estado:** proposto (a confirmar pelo grupo)
+**Estado:** aceite
 
 ## Contexto
 O 1.º incremento (UC-01.S1, UC-02.S1, UC-03.S1, UC-03.S2) precisa de uma aplicação web testável com Playwright, com uma API REST que possa servir outros frontends (E5, secção 3).

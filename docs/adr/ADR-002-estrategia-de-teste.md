@@ -1,6 +1,6 @@
 # ADR-002 — Estratégia de teste
 
-**Estado:** proposto (a confirmar pelo grupo)
+**Estado:** aceite
 
 ## Contexto
 A SRS define casos de teste (CT-01.1 a CT-03.2) com valores e resultado esperado. A aplicação tem de ser testável com Playwright (RT-1).

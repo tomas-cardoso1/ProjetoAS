@@ -1,6 +1,6 @@
 # ADR-003 — API REST com contrato OpenAPI
 
-**Estado:** proposto (a confirmar pelo grupo)
+**Estado:** aceite
 
 ## Contexto
 A Aplicação Web deve ficar separada da lógica do domínio, e a mesma API pode servir outros frontends e parceiros.

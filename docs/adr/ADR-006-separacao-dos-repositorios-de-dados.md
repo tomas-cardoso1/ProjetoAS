@@ -1,6 +1,6 @@
 # ADR-006 — Separação dos repositórios de dados
 
-**Estado:** proposto (a confirmar pelo grupo)
+**Estado:** aceite
 
 ## Contexto
 O sistema gere conjuntos de dados com responsabilidades diferentes: dados dos clientes associados às máquinas, dados operacionais do sistema (máquinas, associações a sensores, leituras, produtos, stock e lotes) e, num incremento futuro, dados necessários à integração com parceiros. A vista lógica da arquitetura deve tornar explícita a responsabilidade de cada conjunto e indicar que módulos o utilizam.

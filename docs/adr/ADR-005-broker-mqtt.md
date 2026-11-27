@@ -1,6 +1,6 @@
 # ADR-005 — Broker de mensagens (MQTT) para os dados dos sensores
 
-**Estado:** proposto (a confirmar pelo grupo)
+**Estado:** aceite
 
 ## Contexto
 Os sensores IoT enviam leituras continuamente (estado, temperatura, stock e lotes). Os dados têm de aparecer em até 30 segundos (RNF-01) e o sistema tem de suportar pelo menos 1000 máquinas (RNF-10). O protocolo não estava definido na SRS.

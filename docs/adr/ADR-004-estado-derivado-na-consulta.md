@@ -1,6 +1,6 @@
 # ADR-004 — Estado da máquina calculado na consulta
 
-**Estado:** proposto (a confirmar pelo grupo)
+**Estado:** aceite
 
 ## Contexto
 BR-02 e BR-03: uma máquina é Online, Com alerta ou Offline; passa a Offline após mais de 15 minutos sem enviar dados. RNF-06: em Offline mostrar a hora da última atualização.
