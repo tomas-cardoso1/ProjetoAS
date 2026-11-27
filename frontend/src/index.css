@@ -109,3 +109,265 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+.app-shell {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 24px 40px;
+  text-align: left;
+}
+
+.app-shell > h1,
+.app-shell > [data-testid='estado-api'] {
+  text-align: center;
+}
+
+.machine-section,
+.stock-section,
+.app-shell > section[aria-labelledby='registration-heading'] {
+  width: min(100%, 760px);
+  box-sizing: border-box;
+  margin: 28px auto;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-align: left;
+}
+
+.machine-section h2,
+.stock-section h2,
+.app-shell > section[aria-labelledby='registration-heading'] h2 {
+  margin-bottom: 18px;
+}
+
+.machine-section label,
+.app-shell > section[aria-labelledby='registration-heading'] label {
+  display: block;
+  margin: 12px 0 4px;
+  color: var(--text-h);
+  font-size: 15px;
+}
+
+.machine-section select,
+.stock-controls select,
+.stock-controls input,
+.app-shell > section[aria-labelledby='registration-heading'] input,
+.app-shell > section[aria-labelledby='registration-heading'] button {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.machine-section select,
+.stock-controls select,
+.stock-controls input,
+.app-shell > section[aria-labelledby='registration-heading'] input {
+  color: var(--text-h);
+  background: var(--bg);
+}
+
+.machine-card {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.machine-state-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--text-h);
+}
+
+.machine-freshness {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.machine-card--online .machine-state-row strong {
+  color: #167044;
+}
+
+.machine-card--offline .machine-state-row strong {
+  color: #a32626;
+}
+
+.machine-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 20px 0 0;
+}
+
+.machine-details dt {
+  font-size: 14px;
+}
+
+.machine-details dd {
+  margin: 4px 0 0;
+  color: var(--text-h);
+  font-weight: 600;
+}
+
+.machine-error,
+.stock-error,
+.app-shell > section[aria-labelledby='registration-heading'] [data-testid='registration-error'] {
+  margin-top: 12px;
+  color: #a32626;
+}
+
+.stock-products,
+.stock-lots {
+  display: grid;
+  gap: 14px;
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+}
+
+.stock-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px 12px;
+  align-items: center;
+  margin: 16px 0;
+}
+
+.stock-controls label {
+  color: var(--text-h);
+  font-size: 14px;
+}
+
+.stock-controls select,
+.stock-controls input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.stock-freshness {
+  margin: 14px 0;
+  font-size: 14px;
+}
+
+.stock-freshness p {
+  margin: 4px 0;
+}
+
+.stock-product {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.stock-product h3 {
+  margin: 0;
+  color: var(--text-h);
+  font-size: 19px;
+}
+
+.stock-product h4 {
+  margin: 18px 0 0;
+  color: var(--text-h);
+  font-size: 15px;
+}
+
+.stock-state,
+.stock-lot-state {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.stock-lot.expiry-state--expired {
+  border: 1px solid #e0aaaa;
+  color: #a32626;
+  background: #fbeaea;
+}
+
+.stock-lot-removal-warning {
+  flex-basis: 100%;
+  margin: 4px 0 0;
+  color: #a32626;
+  font-weight: 700;
+}
+
+.stock-state--low,
+.expiry-state--near {
+  color: #915000;
+}
+
+.stock-state--empty,
+.expiry-state--expired {
+  color: #a32626;
+}
+
+.stock-state--available,
+.expiry-state--valid {
+  color: #167044;
+}
+
+.stock-product-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 14px 0 0;
+}
+
+.stock-product-details dt {
+  font-size: 13px;
+}
+
+.stock-product-details dd {
+  margin: 2px 0 0;
+  color: var(--text-h);
+  font-weight: 700;
+}
+
+.stock-lot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--social-bg);
+  font-size: 14px;
+}
+
+.stock-lot-days {
+  margin-left: auto;
+  color: var(--text-h);
+}
+
+.stock-lot-state {
+  margin: 0 0 0 8px;
+}
+
+.app-shell > section[aria-labelledby='registration-heading'] form button {
+  margin-top: 16px;
+  color: white;
+  background: #34314c;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .app-shell {
+    padding-inline: 12px;
+  }
+
+  .machine-section,
+  .stock-section,
+  .app-shell > section[aria-labelledby='registration-heading'] {
+    padding: 18px;
+  }
+}
