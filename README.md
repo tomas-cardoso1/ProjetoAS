@@ -18,7 +18,7 @@ Projeto desenvolvido no âmbito da unidade curricular de Análise de Sistemas (A
 | | |
 |---|---|
 | **Agente** | Codex |
-| **Modelo** | gpt-6-luna |
+| **Modelo** | GPT-6-Luna |
 | **Versão do OpenSpec** | 1.17.0 |
 
 As skills do OpenSpec usadas pelo agente estão em `.agents/skills`; as changes arquivadas estão em `openspec/changes/archive/` e as specs resultantes em `openspec/specs/`.
